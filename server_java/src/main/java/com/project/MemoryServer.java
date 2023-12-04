@@ -4,7 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import org.java_websocket.WebSocket;
@@ -14,15 +18,19 @@ import org.json.JSONObject;
 
 class MemoryServer extends WebSocketServer implements Colors {
     // need to implement logType constants
+    private final String GETCARD = "card";
+    private final String DISCONNECTION = "disconnection";
+    private final String CONNECTION = "connection";
     private final String HIDDEN = "-";
     private final String REVEALED = "O";
     private final String FOUND = "+";
+    private final int BOARD_SIZE = 4;
 
     private final HashMap<String, WebSocket> connectionMap;
 
     private static BufferedReader inputReader;
     private boolean isAlive;
-    private String[][] cardArray;
+    private String[][][] memoryBoard;
 
     /**
      * class constructor
@@ -93,12 +101,26 @@ class MemoryServer extends WebSocketServer implements Colors {
         return clientUUID.toString();
     }
     
-    public void startCardArray() {
-        cardArray = new String[8][2];
+    public void startMemoryBoard() {
+        List<String> colorList = new ArrayList<>(Arrays.asList(Colors.colorList));
+        memoryBoard = new String[BOARD_SIZE][BOARD_SIZE][2];
 
-        for(String[] card : cardArray) {
-            card[0] = HIDDEN;
+        for(int i = 0; i < BOARD_SIZE; i++){
+            for(int j = 0; j < BOARD_SIZE; j++) {
+                memoryBoard[i][j][0] = "-";
+                memoryBoard[i][j][1] = colorList.get(0);
+            }
         }
+
+        //Collections.shuffle(memoryBoard);
+    }
+
+    public void sendCardList(WebSocket connection)  {
+        JSONObject cardListMessage = new JSONObject();
+        cardListMessage.put("type", "cardList");
+        cardListMessage.put("list", memoryBoard);
+
+        connection.send(cardListMessage.toString());
     }
 
     /**
@@ -116,10 +138,22 @@ class MemoryServer extends WebSocketServer implements Colors {
         connection.send(greetingsMessage.toString());
     }
 
+    private void sendCard(WebSocket connection, int column, int row) {
+        JSONObject cardMessage = new JSONObject();
+
+        cardMessage.put("type", "card");
+
+//        String[] card = cardList.
+//        cardMessage.put("card", cardMessage);
+    }
+
     @Override
     public void onOpen(WebSocket connection, ClientHandshake handshake) {
         String clientUUID = getClientUUID();
         sendGreetingsMessage(connection, clientUUID);
+        connectionMap.put(clientUUID, connection);
+
+        sendCardList(connection);
 
         serverLog("New client with ID: " + clientUUID + " connected!", 0);
 
@@ -127,12 +161,23 @@ class MemoryServer extends WebSocketServer implements Colors {
     
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        
+        serverLog("client disconnected", 1);
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
-        
+    public void onMessage(WebSocket connection, String message) {
+        JSONObject receivedMessage = new JSONObject(message);
+        String type = receivedMessage.getString("type");
+
+        switch(type) {
+            case DISCONNECTION:
+                connectionMap.remove(receivedMessage.getString("id"));
+                break;
+            
+            case GETCARD:
+
+        }
+
     }
 
     @Override
@@ -149,6 +194,7 @@ class MemoryServer extends WebSocketServer implements Colors {
         setConnectionLostTimeout(0);
         setConnectionLostTimeout(100);        
 
+        startCardList();
     }
     
 }

@@ -10,5 +10,16 @@ public interface Colors {
     public static final String CYAN = " #00fff3 ";
     public static final String ORANGE = " #ff8300 ";
     public static final String GREY = " #616161 ";  
+
+    public static final String[] colorList = new String[]{
+        WHITE,
+        RED,
+        GREEN,
+        YELLOW,
+        BLUE,
+        MAGENTA,
+        CYAN,
+        ORANGE
+    };
     
 } 
