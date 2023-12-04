@@ -1,14 +1,14 @@
 package com.project;
 
 public interface Colors {
-    public static final String WHITE = "\u001B[0m";
-    public static final String RED = "\u001B[31m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
-    public static final String MAGENTA = "\u001B[35m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String BRIGHT_MAGENTA = "\u001B[95m";
-    public static final String BRIGHT_YELLOW = "\u001B[93m";  
+    public static final String WHITE = " #ffffff ";
+    public static final String RED = " #ff0000 ";
+    public static final String GREEN = " #00ca00 ";
+    public static final String YELLOW = " #ffff00 ";
+    public static final String BLUE = " #0068ff ";
+    public static final String MAGENTA = " #e312d0 ";
+    public static final String CYAN = " #00fff3 ";
+    public static final String ORANGE = " #ff8300 ";
+    public static final String GREY = " #616161 ";  
     
 } 

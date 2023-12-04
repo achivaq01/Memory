@@ -14,10 +14,15 @@ import org.json.JSONObject;
 
 class MemoryServer extends WebSocketServer implements Colors {
     // need to implement logType constants
+    private final String HIDDEN = "-";
+    private final String REVEALED = "O";
+    private final String FOUND = "+";
+
     private final HashMap<String, WebSocket> connectionMap;
 
     private static BufferedReader inputReader;
     private boolean isAlive;
+    private String[][] cardArray;
 
     /**
      * class constructor
@@ -50,14 +55,14 @@ class MemoryServer extends WebSocketServer implements Colors {
                 }
 
             } catch (IOException e)  {
-                serverLog(e, 0);
+                serverLog(e.getMessage(), 0);
             }
         }
 
         try {
             stop(1000);
         } catch (InterruptedException e) {
-            serverLog(e, 0);
+            serverLog(e.getMessage(), 0);
         }
     }
 
@@ -67,12 +72,11 @@ class MemoryServer extends WebSocketServer implements Colors {
      * @param exception
      * @param logType
      */
-    private void serverLog(Exception exception, int logType) {
-        String exceptionMessage = exception.getMessage();
+    private void serverLog(String log, int logType) {
 
         switch (logType) {
             default:
-                System.out.println(exceptionMessage);
+                System.out.println(log);
                 break;
 
         }
@@ -88,6 +92,14 @@ class MemoryServer extends WebSocketServer implements Colors {
 
         return clientUUID.toString();
     }
+    
+    public void startCardArray() {
+        cardArray = new String[8][2];
+
+        for(String[] card : cardArray) {
+            card[0] = HIDDEN;
+        }
+    }
 
     /**
      * sends a greetings message
@@ -100,6 +112,8 @@ class MemoryServer extends WebSocketServer implements Colors {
 
         greetingsMessage.put("type", "greetings");
         greetingsMessage.put("id", id);
+
+        connection.send(greetingsMessage.toString());
     }
 
     @Override
@@ -107,8 +121,10 @@ class MemoryServer extends WebSocketServer implements Colors {
         String clientUUID = getClientUUID();
         sendGreetingsMessage(connection, clientUUID);
 
-    }
+        serverLog("New client with ID: " + clientUUID + " connected!", 0);
 
+    }
+    
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
         
